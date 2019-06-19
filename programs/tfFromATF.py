@@ -19,9 +19,14 @@ REPO_DIR = f'{BASE}/{ORG}/{REPO}'
 
 TRANS_DIR = f'{REPO_DIR}/sources/cdli/transcriptions'
 CHAR_DIR = f'{REPO_DIR}/characters'
+CHAR_MAP_DIR = f'{BASE}/{ORG}/signs/characters'
 
 MAPPING_FILE = 'mapping.tsv'
-MAPPING_PATH = f'{CHAR_DIR}/{MAPPING_FILE}'
+MAPPING_PATH = f'{CHAR_MAP_DIR}/{MAPPING_FILE}'
+UNMAPPED_FILE = 'unmapped.tsv'
+UNMAPPED_PATH = f'{CHAR_DIR}/{UNMAPPED_FILE}'
+ALLCHARS_FILE = 'corpus.tsv'
+ALLCHARS_PATH = f'{CHAR_DIR}/{ALLCHARS_FILE}'
 
 IN_DIR = f'{TRANS_DIR}/{VERSION_SRC}'
 
@@ -226,6 +231,14 @@ def makeAscii(text):
   for (a, r) in transUni.items():
     text = text.replace(r, a)
   return text
+
+
+def tokenRep(token):
+  return f'\t{token}' if type(token) is str else '\t'.join(str(t) for t in token)
+
+
+def tokenSort(token):
+  return token if type(token) is str else f'{token[1]}\t{token[0]}'
 
 
 META_FIELDS = {
@@ -703,6 +716,7 @@ def director(cv):
 
   sources = getSources()
   mapping = getMapping()
+  allChars = set()
   unmapped = collections.Counter()
 
   curDocument = None
@@ -1323,6 +1337,7 @@ def director(cv):
             symR = f'n({qpartRepR})'
             symU = f'n({qpartRepU})'
             cv.feature(curSign, repeat=repeat)
+            allChars.add(qpartRep)
           elif div in quantity:
             fraction = transUnEsc(quantity)
             repeat = None
@@ -1332,6 +1347,7 @@ def director(cv):
             partRepU = uni(partRep)
             symU = partRepU
             cv.feature(curSign, fraction=fraction)
+            allChars.add((fraction, qpartRep))
           else:
             repeat = int(quantity)
             fraction = None
@@ -1341,6 +1357,7 @@ def director(cv):
             partRepU = uni(partRep)
             symU = partRepU
             cv.feature(curSign, repeat=repeat)
+            allChars.add((quantity, qpartRep))
 
           cv.feature(
               curSign,
@@ -1458,8 +1475,10 @@ def director(cv):
 
         if reading:
           cv.feature(curSign, reading=reading, readingr=readingR, readingu=readingU)
+          allChars.add(reading)
         if grapheme:
           cv.feature(curSign, grapheme=grapheme, graphemer=graphemeR, graphemeu=graphemeU)
+          allChars.add(grapheme)
 
       return (sym, symR, symU)
 
@@ -1559,7 +1578,8 @@ def director(cv):
           parts.append((curPart, ''))
         else:
           if len(parts):
-            parts[-1] += ((curPart, ''))
+            # parts[-1] += ((curPart, ''))
+            parts[-1] = ((curPart, ''))
           else:
             errors[f'sign: empty (in word)'][src].add(
                 (i, line, pNum, f'{transUnEsc(curPart)} in {transUnEsc(origWord)}')
@@ -1739,6 +1759,23 @@ def director(cv):
     showDiags(warnings, 'WARNING')
   if errors:
     showDiags(errors, 'ERROR')
+
+  tokens = set()
+  for part in unmapped:
+    match = numeralRe.match(part)
+    if match:
+      quantity = match.group(1)
+      qpart = match.group(2)
+      tokens.add((quantity, qpart))
+    else:
+      tokens.add(part)
+  with open(UNMAPPED_PATH, 'w') as f:
+    for token in sorted(tokens, key=tokenSort):
+      f.write(f'{tokenRep(token)}\n')
+
+  with open(ALLCHARS_PATH, 'w') as f:
+    for token in sorted(allChars, key=tokenSort):
+      f.write(f'{tokenRep(token)}\n')
 
 
 # TF LOADING (to test the generated TF)
