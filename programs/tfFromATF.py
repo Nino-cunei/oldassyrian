@@ -5,6 +5,9 @@ import collections
 from unicodedata import name as uname
 from shutil import rmtree
 from glob import glob
+
+import yaml
+
 from tf.fabric import Fabric
 from tf.convert.walker import CV
 
@@ -28,6 +31,9 @@ UNMAPPED_PATH = f'{CHAR_DIR}/{UNMAPPED_FILE}'
 ALLCHARS_FILE = 'corpus.tsv'
 ALLCHARS_PATH = f'{CHAR_DIR}/{ALLCHARS_FILE}'
 
+DECL_PATH = f'{REPO_DIR}/yaml'
+FIXES_DECL = f'{DECL_PATH}/fixes.yaml'
+
 IN_DIR = f'{TRANS_DIR}/{VERSION_SRC}'
 
 TF_DIR = f'{REPO_DIR}/tf'
@@ -37,11 +43,15 @@ OUT_DIR = f'{TF_DIR}/{VERSION_TF}'
 
 UNMAPPABLE = {'x', 'X', 'n', 'N', '...'}
 
-prime = "'"
-ellips = '…'
-liga = '␣'
-adjacent = '⁼'
-excl = '¡'
+PRIME = "'"
+ELLIPS = '…'
+LIGA = '␣'
+ADJACENT = '⁼'
+EXCL = '¡'
+WDIV_ORIG = '/'
+WDIV_ESC = 'Ⅲ'
+WDIV_UNI = '\u12079'
+
 
 emphatic = {
     's,': 'ş',
@@ -53,20 +63,20 @@ unknownSet = set(unknownStr)
 
 lowerLetterStr = 'abcdefghijklmnopqrstuvwyz' + ''.join(emphatic.values())
 upperLetterStr = lowerLetterStr.upper()
-lowerLetterStr += prime
+lowerLetterStr += PRIME
 
 
-div = '÷'
-digitStr = f'0123456789{div}'
+DIV = '÷'
+digitStr = f'0123456789{DIV}'
 
 divRe = re.compile(r'''([0-9])/([0-9])''')
 
 
 def divRepl(match):
-  return f'{match.group(1)}{div}{match.group(2)}'
+  return f'{match.group(1)}{DIV}{match.group(2)}'
 
 
-graphemeStr = f'{liga}{excl}'
+graphemeStr = f'{LIGA}{EXCL}'
 operatorStr = '.+/:'
 operatorSet = set(operatorStr)
 
@@ -101,8 +111,8 @@ clusterAtfInv = {co: ca for (ca, co) in clusterAtf.items()}
 
 readingPat = (
     f'(?:(?:[{lowerLetterStr}{upperLetterStr}]'
-    f'[{lowerLetterStr}{upperLetterStr}{digitStr}{prime}]*'
-    f')|{ellips}|[{unknownStr}])'
+    f'[{lowerLetterStr}{upperLetterStr}{digitStr}{PRIME}]*'
+    f')|{ELLIPS}|[{unknownStr}])'
     f'[{flagStr}]*'
 )
 graphemePat = (
@@ -135,9 +145,10 @@ def clusterCheck(text):
 
 def transEsc(text):
   text = divRe.sub(divRepl, text)
-  text = text.replace('...', ellips)
-  text = text.replace('x(', f'{liga}(')
-  text = text.replace('!(', f'{excl}(')
+  text = text.replace(f' {WDIV_ORIG} ', f' {WDIV_ESC} ')
+  text = text.replace('...', ELLIPS)
+  text = text.replace('x(', f'{LIGA}(')
+  text = text.replace('!(', f'{EXCL}(')
   for (exp, abb) in emphatic.items():
     text = text.replace(exp, abb)
   for (cab, cae, cob, coe, ctp) in clusterChars:
@@ -153,10 +164,11 @@ def transUnEsc(text):
     text = text.replace(cab, cob).replace(cae, coe)
   for (exp, abb) in emphatic.items():
     text = text.replace(abb, exp)
-  text = text.replace(excl, '!')
-  text = text.replace(liga, 'x')
-  text = text.replace(ellips, '...')
-  text = text.replace(div, '/')
+  text = text.replace(EXCL, '!')
+  text = text.replace(LIGA, 'x')
+  text = text.replace(ELLIPS, '...')
+  text = text.replace(DIV, '/')
+  text = text.replace(WDIV_ESC, WDIV_ORIG)
   return text
 
 
@@ -171,13 +183,14 @@ spaceE = r'''(?:\s+|$)'''
 bO = r'\('
 bC = r'\)'
 
-insaneRe = re.compile(r'''[^0-9a-zA-Z$(){}\[\]<>.,:=$#&@"'?!/+*| _-]''')
-transRe = re.compile(r'''^([0-9a-zA-Z']+)\.\s+(.+)$''')
+insaneRe = re.compile(r'''[^0-9a-zA-Z$(){}\[\]<>.,:=$#@&"'?!/+*| _-]''')
+transRe = re.compile(r'''^([0-9a-zA-Z']+)\.\s+(.*)$''')
 translationRe = re.compile(r'''^tr\.([^:]+):\s*(.*)''')
 collectionRe = re.compile(r'''^(\S+)\s+([0-9]+)\s*,?\s*([^&+]*)(?:[&+]|$)''')
+collection2Re = re.compile(r'''^([^,]*)\s+([0-9]+)\s*,\s*([^&+]*)(?:[&+]|$)''')
 commentRe = re.compile(r'∈\$(.*?)\$∋''')
-numeralBackRe = re.compile(f'''(n|(?:[0-9]+(?:{div}[0-9]+)?))∈([^∋]+)∋''')
-numeralRe = re.compile(f'''(n|(?:[0-9]+(?:{div}[0-9]+)?)){bO}({readingPat}){bC}''')
+numeralBackRe = re.compile(f'''(n|(?:[0-9]+(?:{DIV}[0-9]+)?))∈([^∋]+)∋''')
+numeralRe = re.compile(f'''(n|(?:[0-9]+(?:{DIV}[0-9]+)?)){bO}({readingPat}){bC}''')
 withGraphemeBackRe = re.compile(f'''([{graphemeStr}])∈([^∋]+)∋''')
 withGraphemeRe = re.compile(f'''({readingPat})([{graphemeStr}]){bO}({graphemePat}){bC}''')
 numeral2Re = re.compile(r'''([0-9]+∈[^∋]+∋)''')
@@ -390,10 +403,10 @@ featureMeta = {
         'description': 'the ! or x in a !() or x() construction',
     },
     'operatorr': {
-        f'description': 'the ! or x in a !() or x() construction, represented as =, {liga}',
+        f'description': 'the ! or x in a !() or x() construction, represented as =, {LIGA}',
     },
     'operatoru': {
-        f'description': 'the ! or x in a !() or x() construction, represented as =, {liga}',
+        f'description': 'the ! or x in a !() or x() construction, represented as =, {LIGA}',
     },
     'pnumber': {
         'description': 'P number of a document',
@@ -494,6 +507,9 @@ featureMeta = {
     'ARK': {
         'description': 'persistent identifier of type ARK from metadata field "UCLA Library ARK"',
     },
+    'version': {
+        'description': 'version from meta data line',
+    },
 }
 
 
@@ -513,12 +529,17 @@ OBJECTS = set('''
 FACES = set('''
     obverse
     reverse
+    right
     left edge
     upper edge
     lower edge
+    top
     bottom
     surface a
     seal 1
+    seal A
+    seal B
+    seal C
 '''.strip().split())
 
 FACES_CORRECTION = {
@@ -539,6 +560,7 @@ COMMENTS = {c.strip() for c in COMMENTS.strip('\n').split('\n')}
 COMMENT_PATTERN = r'''
     (?:
       ^
+      \s*\(?\s*
       (?:
           (?: maybe)?
           (?:
@@ -549,8 +571,8 @@ COMMENT_PATTERN = r'''
               \s*
               (?:
                   (?:
-                    [0-9]+
-                    (?:-[0-9]+)?
+                    [0-9']+
+                    (?:-[0-9']+)?
                   )
                   | one | two | three | four | five | six | seven | eight | nine | ten
 
@@ -558,7 +580,12 @@ COMMENT_PATTERN = r'''
               \s+
               lines?
           )
-          | rest | obverse | reverse | seal | lower edge |
+          | rest | obverse | reverse |
+          (?:
+              seal
+              (?: \s+ [0-9A-Z])?
+          )
+          | lower edge |
           (?:
               beginning
               (?: \s+ lines?)?
@@ -575,9 +602,13 @@ COMMENT_PATTERN = r'''
           )
           | blank | illegible | unreadable | uninscribed | destroyed | missing | erased | effaced
           | ruling | impression |
+          (?: no \s+ legend) |
           (?: not \s+ inscribed) |
-          (?: of \s+ traces)
+          (?: no \s+ linguistic \s+ content) |
+          (?: of \s+ traces) |
+          (?: traces)
       )?
+      \s*\)?\s*
       $
     )
     |
@@ -631,9 +662,17 @@ def commentRepl(match):
   return f'├{commentIndex}┤'
 
 
+# CONFIG READING
+
+def readYaml(fileName):
+  with open(fileName) as y:
+    y = yaml.load(y)
+  return y
+
+
 # ERROR HANDLING
 
-def showDiags(diags, kind, batch=20):
+def showDiags(diags, kind, batch=100):
   if not diags:
     print('No diags')
   else:
@@ -715,6 +754,9 @@ def convert():
 def director(cv):
 
   sources = getSources()
+  fixesDecl = readYaml(FIXES_DECL)
+  lineFixes = fixesDecl['lineFixes']
+  sysFixes = fixesDecl['sysFixes']
   mapping = getMapping()
   allChars = set()
   unmapped = collections.Counter()
@@ -798,10 +840,12 @@ def director(cv):
     match = collectionRe.match(docNum)
 
     if not match:
-      warnings[f'document: malformed collection volume, number'][src].add(
-          (i, line, pNum, docNum)
-      )
-      docnote = docNum
+      match = collection2Re.match(docNum)
+      if not match:
+        warnings[f'document: malformed collection volume, number'][src].add(
+            (i, line, pNum, docNum)
+        )
+        docnote = docNum
     else:
       collection = match.group(1)
       volume = match.group(2)
@@ -838,11 +882,13 @@ def director(cv):
     if curDocument is None:
       return
 
+    if not cv.linked(curDocument):
+      warnings[f'document: empty'][src].add((i, line, pNum, None))
+      cv.slot()
+
     faceEnd()
     recentObject = None
     cv.terminate(curDocument)
-    if not cv.linked(curDocument):
-      errors[f'document: empty'][src].add((i, line, pNum, None))
     curDocument = None
 
   # sub director: processing an # metadata line
@@ -881,6 +927,8 @@ def director(cv):
         errors[f'meta: spurious ='][src].add((i, line, pNum, f'"{value}" => "{newValue}"'))
         value = newValue
       cv.feature(curDocument, **{key: value})
+    elif fields[0] == 'version:':
+      cv.feature(curDocument, version=fields[1].strip())
     else:
       errors[f'meta: unknown kind'][src].add((i, line, pNum, fields[0]))
       return
@@ -1278,6 +1326,10 @@ def director(cv):
         errors['sign: empty (in cluster)'][src].add((i, line, pNum, transUnEsc(origPart)))
         return (sym, symR, symU)
 
+      if part == WDIV_ESC:
+        cv.feature(curSign, type='wdiv')
+        return (WDIV_ORIG, WDIV_ORIG, WDIV_UNI)
+
       if part.startswith('├') and part.endswith('┤'):
         commentIndex = int(part[1:-1])
         comment = commentNotes[commentIndex]
@@ -1338,7 +1390,7 @@ def director(cv):
             symU = f'n({qpartRepU})'
             cv.feature(curSign, repeat=repeat)
             allChars.add(qpartRep)
-          elif div in quantity:
+          elif DIV in quantity:
             fraction = transUnEsc(quantity)
             repeat = None
             sym = f'{fraction}({qpartRep})'
@@ -1388,7 +1440,7 @@ def director(cv):
           reading = partRep
           readingR = partRepR
           readingU = partRepU
-          op = '=' if operator == '!' else liga if operator == 'x' else operator
+          op = '=' if operator == '!' else LIGA if operator == 'x' else operator
           opR = op.replace('x', 'ₓ')
           sym = f'{reading}{operator}{grapheme}'
           symR = f'{readingR}{op}{graphemeR}'
@@ -1413,14 +1465,14 @@ def director(cv):
           cv.feature(curSign, type='empty')
           break
 
-        if part == ellips:
+        if part == ELLIPS:
           cv.feature(curSign, type='ellipsis')
           grapheme = partRep
           graphemeR = partRepR
           graphemeU = partRepU
           sym = '...'
-          symR = ellips
-          symU = ellips
+          symR = ELLIPS
+          symU = ELLIPS
           break
 
         if part in unknownSet:
@@ -1496,8 +1548,8 @@ def director(cv):
         if word.startswith('x'):
           c = 'x'
           word = word[1:]
-        elif word.startswith(ellips):
-          c = ellips
+        elif word.startswith(ELLIPS):
+          c = ELLIPS
           word = word[1:]
         else:
           match = numeralRe.match(word) or withGraphemeRe.match(word)
@@ -1520,7 +1572,14 @@ def director(cv):
           continue
 
         c = word[0]
-        if c == '-' or c in operatorSet:
+        if c == WDIV_ESC:
+          if curPart:
+            parts.append((curPart, '-'))
+          parts.append((c, ''))
+          inSign = False
+          endSign = False
+          endPart = False
+        elif c == '-' or c in operatorSet:
           if inSign or len(parts) == 0:
             parts.append((curPart, c))
           else:
@@ -1589,6 +1648,10 @@ def director(cv):
 
     # the outer loop of the lineData sub generator
 
+    if not words:
+      warnings[f'line: empty'][src].add((i, line, pNum, None))
+      cv.slot()
+
     lWords = len(words)
 
     for (w, word) in enumerate(words):
@@ -1613,16 +1676,16 @@ def director(cv):
         after = afterPart + (
             ' ' if p == lParts - 1 and w != lWords - 1 else ''
         )
-        afterr = adjacent if p < lParts - 1 and afterPart == '' else after
+        afterr = ADJACENT if p < lParts - 1 and afterPart == '' else after
         afteru = afterPart.replace('-', '')
         (symPart, symPartR, symPartU) = signData(cAtfStart, cAtfEnd, after, afterr)
-        sym += f'{symPart}{after or adjacent}'
+        sym += f'{symPart}{after or ADJACENT}'
         symR += f'{symPartR}{after}'
         symU += f'{symPartU}{afteru}'
       if sym:
         cv.feature(
             curWord,
-            sym=sym.strip(f'{adjacent} -'),
+            sym=sym.strip(f'{ADJACENT} -'),
             symr=symR.strip(' -'),
             symu=symU.strip(' '),
         )
@@ -1640,6 +1703,9 @@ def director(cv):
 
   # the outer loop of the corpus generator
 
+  fixL = 'FIX (LINE)'
+  fixS = 'FIX (SYSTEMATIC)'
+
   for src in sorted(sources):
     path = f'{IN_DIR}/{src}.txt'
     print(f'Reading source {src}')
@@ -1651,15 +1717,38 @@ def director(cv):
       for line in fh:
         i += 1
 
+        if i in lineFixes:
+          (fr, to, expl) = lineFixes[i]
+          if fr in line:
+            rep = f'{fr:>6} => {to:<6} {expl}'
+            line = line.replace(fr, to)
+            warnings[f'{fixL}: applied'][src].add(
+                (i, line.rstrip('\n'), pNum, rep)
+            )
+          else:
+            rep = f'{fr:>6} =/=> {to:<6} {expl}'
+            errors[f'{fixL}: not applied'][src].add(
+                (i, line.rstrip('\n'), pNum, rep)
+            )
+        for (fr, to, expl) in sysFixes:
+          rep = f'{fr:>6} => {to:<6} {expl}'
+          if fr in line:
+            line = line.replace(fr, to)
+            warnings[f'{fixS}: applied'][src].add(
+                (i, line.rstrip('\n'), pNum, rep)
+            )
+
         if not line:
           continue
 
-        line = line.strip()
+        line = line.lstrip()
+        line = line.rstrip('\n')
 
         if not line:
           continue
 
         if line[0].isupper():
+          line = line.rstrip()
           metaParts = line.split(':', 1)
           if len(metaParts) == 1:
             continue
@@ -1676,6 +1765,7 @@ def director(cv):
         isDoc = line.startswith('&')
 
         if isDoc:
+          line = line.rstrip()
           if len(line) > 1 and line[1] == 'P':
             transLine = None
             documentStart()
@@ -1684,42 +1774,44 @@ def director(cv):
             commentInsert()
 
         isMeta = line.startswith('#')
+        isComment = line.startswith('$')
 
-        if not isMeta or not line.startswith('#tr.'):
+        if not (isDoc or isMeta or isComment or line.startswith('#tr.')):
           (msg, lineMsg, line) = checkSane(line)
           if msg:
             errors[f'atf: illegal character(s)'][src].add((i, lineMsg, pNum, msg))
 
         if isDoc:
+          line = line.rstrip()
           continue
 
         if skip:
           continue
 
         if isMeta:
+          line = line.rstrip()
           processMeta()
           continue
 
         isStruct = line.startswith('@')
 
         if isStruct:
+          line = line.rstrip()
           processAtSpec()
           continue
 
         if curFace is None:
           faceStart(None)
 
-        isComment = line.startswith('$')
-
         if isComment:
+          line = line.rstrip()
           commentInsert()
           continue
 
         isNumbered = transRe.match(line)
         if isNumbered:
           ln = isNumbered.group(1)
-          recentTrans = isNumbered.group(2)
-
+          recentTrans = isNumbered.group(2).rstrip()
         else:
           errors[f'line: not numbered'][src].add((i, line, pNum, None))
           ln = ''

@@ -8,11 +8,7 @@
 Nino-cunei
 ==========
 
-```
-not yet
-
-[![sha](sha.png) Software Heritage Archive](https://archive.softwareheritage.org/browse/origin/https://github.com/nino-cunei/oldassyrian/)
-```
+[![SWH](https://archive.softwareheritage.org/badge/origin/https://github.com/nino-cunei/oldassyrian/)](https://archive.softwareheritage.org/browse/origin/https://github.com/nino-cunei/oldassyrian/)
 
 ```
 not yet!

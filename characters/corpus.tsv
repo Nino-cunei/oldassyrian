@@ -1,11 +1,8 @@
-	!(3(disz)
-	&a
 	&i2
 	'i
-	)
 	...
 	2
-	2(asz@t)
+	2(disz@t)
 	A
 	A2
 	AB
@@ -50,7 +47,6 @@
 	UTU
 	UZ
 	ZU
-	_ma
 	a
 	a'
 	a2
@@ -94,9 +90,7 @@
 	at
 	at,
 	az
-5	az
 	az2
-	azs2
 	ba
 	ba2
 	babbar
@@ -165,8 +159,6 @@
 7	disz
 8	disz
 9	disz
-	dsz
-8	dsz
 	du
 	du10
 	du11
@@ -191,7 +183,6 @@
 	em
 	eme6
 	en
-	en2
 	en6
 	ensi2
 	ep
@@ -246,7 +237,7 @@
 	har
 	he
 	hi
-	hi2
+	hi@v
 	hu
 	hun
 	hur
@@ -267,7 +258,6 @@
 	ili5
 	illat
 	im
-	ima
 	in
 	in4
 	inanna
@@ -336,7 +326,6 @@
 	li
 	li2
 	li3
-	lih
 	lik
 	lil2
 	lim
@@ -373,8 +362,6 @@
 	na
 	na2
 	na4
-	na_
-	nah
 	nam
 	nam3
 	nanna
@@ -416,7 +403,6 @@
 	qa2
 	qa3
 	qal
-	qam
 	qam2
 	qar
 	qe
@@ -469,12 +455,10 @@
 	sar
 	se
 	se2
-	sea
 	ser2
 	si
 	si2
 	sig17
-	sig17_
 	sig2
 	sig4
 	sig5
