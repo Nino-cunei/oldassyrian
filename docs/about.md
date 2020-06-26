@@ -1,11 +1,11 @@
 <img src="images/logo.png" align="left"/>
 <img src="images/ninologo.png" align="right" width="20%"/>
 
-The Old Babylonian corpus
+The Old Assyrian corpus
 ==============================
 
 This repo is about the digital processing of the transliterations of
-cuneiform tablets from the Old Babylonian periods.
+cuneiform tablets from the Old Assyrian period.
 
 Cuneiform tablets
 =================
@@ -27,14 +27,13 @@ Corpus
 ------
 
 We have chosen the
-[Old Babylonian letters (AbB)](http://cdli.ox.ac.uk/wiki/doku.php?id=old_babylonian_letters)
-(1900-1600 BC) as the second corpus for testing our approach. This is
-*cuneiform* corpus of ca. 1300 documents (tablets and envelopes) with legible inscriptions.
+[Old Assyrian documents](http://cdli.ox.ac.uk/wiki/doku.php?id=old_babylonian_letters)
+(2000-1700 BC) as the third corpus for testing our approach. This is
+*cuneiform* corpus of ca. 4775 documents (tablets and envelopes) with legible inscriptions.
 
-The first cuneiform corpus that we have brought into Text-Fabric is the
-proto-cuneiform
-[Uruk](https://github.com/Nino-cunei/uruk/blob/master/docs/about.md)
-corpus.
+The previous cuneiform corpora that we have brought into Text-Fabric are:
+*   proto-cuneiform [Uruk](https://github.com/Nino-cunei/uruk/blob/master/docs/about.md) corpus.
+*   cuneiform [OldBabylonian](https://github.com/Nino-cunei/oldbabylonian/blob/master/docs/about.md) corpus.
 
 Provenance
 ----------
@@ -48,22 +47,14 @@ the CDLI website.
 
 ### Transliterations
 
-On the [search page](https://cdli.ucla.edu/search/search.php) we performed two
-searches: one with `AbB` in the *Primary publication* field and one with the same string
-in the *Secondary publication(s)* field. In both searches we entered 
-`Old Babylonian` in the *Chronology - period* field.
-On the results
-page, we have chosen `Download all text`.
+On the [search page](https://cdli.ucla.edu/search/search.php) we performed a
+search with `Old Assyrian` in the *Chronology - period* field.
+On the results page, we have chosen `Download all text`.
 
 The downloaded files contain metadata and transliterations.
 
 We use a dozen or so of the metadata fields, but the focus is on the transliterations.
 
-We have a [specification](transcription.md) of the transcription format and
-how we model the text in Text-Fabric.
-
-We have checked the conversion from the ATF transliterations to Text-Fabric
-thoroughly.
-An account of the checking that we performed is in the
-[checks](http://nbviewer.jupyter.org/github/Nino-cunei/oldbabylonian/blob/master/programs/checks.ipynb)
-notebook.
+We have a
+[specification](https://github.com/Nino-cunei/tfFromAtf/blob/master/docs/transcription.md)
+of the transcription format and how we model the text in Text-Fabric.

@@ -10,11 +10,7 @@ Nino-cunei
 
 [![SWH](https://archive.softwareheritage.org/badge/origin/https://github.com/nino-cunei/oldassyrian/)](https://archive.softwareheritage.org/browse/origin/https://github.com/nino-cunei/oldassyrian/)
 
-```
-not yet!
-
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.167956619.svg)](https://doi.org/10.5281/zenodo.2579207)
-```
 
 Cuneiform corpora in Text-Fabric
 --------------------------------------
@@ -33,7 +29,7 @@ Library Initiative.
 See also
 [about](docs/about.md)
 and
-[transcription](docs/transcription.md).
+[transcription](https://github.com/Nino-cunei/tfFromAtf/blob/master/docs/transcription.md).
 
 Software
 --------
@@ -70,17 +66,15 @@ This repo is joint work of
 * [Audey Hussein](https://www.linkedin.com/in/audayhussein/?originalSubdomain=ca)
   helped with the mapping from readings to cuneiform unicode;
 
-```
-not yet
-
 **N.B.:** Releases of this repo have been archived at [Zenodo](https://zenodo.org).
 Click the DOI badge to be taken to the archive. There you find ways to cite this work.
-```
 
 Status
 ------
 
 This is **work in progress!**
 
+*   2020-06-25 First conversion to TF, with the same code as used for
+    [Old Babylonian](https://github.com/Nino-cunei/oldbabylonian).
 *   2018-06-19 First discussion of converting the Old Assyrian corpus
     with Alba, Martijn, en Cale during Cale's visit to Leiden.

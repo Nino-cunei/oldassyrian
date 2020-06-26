@@ -6,6 +6,19 @@ sysFixes:
 
 lineFixes:
   169253: ['_ 4(asz)', '_4(asz)', 'space removed']
+  41517: ['01', '1', "leading zero removed"]
+  41530: ['02', '2', "leading zero removed"]
+  136444: ['01', '1', "leading zero removed"]
+  136476: ['02', '2', "leading zero removed"]
+  136507: ['01', '1', "leading zero removed"]
+  136543: ['02', '2', "leading zero removed"]
+  137695: ["01'", "1'", "leading zero removed"]
+  137701: ["02'", "2'", "leading zero removed"]
+  137734: ["03", "3", "leading zero removed"]
+  137766: ["02'", "2'", "leading zero removed"]
+  137795: ["03'", "3'", "leading zero removed"]
+  137979: ['02', '2', "leading zero removed"]
+  137747: ['12a.', "12'", "possible correction"]
   61778: ['5(az) ', '5(asz)', 'correction']
   850: ['azs2', 'asz2', 'typo']
   112956: ['asz@t', 'disz@t', 'correction']
@@ -31,6 +44,7 @@ lineFixes:
   169343: ['_ma-na{+im}', '_ma-na{im}_', '_ added; + removed']
 
   270767: ['nah', 'na-ah', 'correction']
+  288782: ['p.', '9.', 'correction']
 
   14987: ['qam', 'qam2', 'correction']
   15037: ['qam', 'qam2', 'correction']
