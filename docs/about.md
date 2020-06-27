@@ -27,8 +27,8 @@ Corpus
 ------
 
 We have chosen the
-[Old Assyrian documents](http://cdli.ox.ac.uk/wiki/doku.php?id=old_babylonian_letters)
-(2000-1700 BC) as the third corpus for testing our approach. This is
+Old Assyrian documents
+(2000-1600 BC) as the third corpus for testing our approach. This is
 *cuneiform* corpus of ca. 4775 documents (tablets and envelopes) with legible inscriptions.
 
 The previous cuneiform corpora that we have brought into Text-Fabric are:
