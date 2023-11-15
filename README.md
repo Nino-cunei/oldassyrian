@@ -57,7 +57,7 @@ This repo is joint work of
 
 ### Acknowledgements
 
-* [Audey Hussein](https://www.linkedin.com/in/audayhussein/?originalSubdomain=ca)
+* [Auday Hussein](https://www.linkedin.com/in/audayhussein/?originalSubdomain=ca)
   helped with the mapping from readings to cuneiform unicode;
 
 **N.B.:** Releases of this repo have been archived at [Zenodo](https://zenodo.org).
